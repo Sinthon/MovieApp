@@ -25,31 +25,35 @@ namespace MovieApp.Controllers
             return View(model);
         }
 
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
             var model = context.Movies.Find(id);
             return View(model);
         }
 
-        public ActionResult Create()
+        public IActionResult Create()
         {
             var movie = new MovieModel();
-            return View(movie);
+            return View("Form", movie);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(MovieModel movie)
+        public IActionResult Create(MovieModel movie)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    context.Movies.Add(movie);
+                    if(movie.Id == 0)
+                        context.Movies.Add(movie);
+                    else
+                        context.Movies.Update(movie);
+                    
                     context.SaveChanges();
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Form", movie);
             }
             catch
             {
@@ -57,34 +61,13 @@ namespace MovieApp.Controllers
             }
         }
 
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int id)
         {
-            var model = context.Movies.Find(id);
-            return RedirectToAction("Create",model);
+            MovieModel model = context.Movies.Find(id);
+            return View("Form", model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public IActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
